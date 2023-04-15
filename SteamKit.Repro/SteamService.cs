@@ -40,12 +40,14 @@ public class SteamService : IHostedService
     
     private async Task FetchUserStats()
     {
+        // Execute while connected and logged in
         while (_client.IsConnected && _steamUser.SteamID != null)
         {
             try
             {
                 _logger.LogInformation("Attempting to fetch Dota 2 User Stats...");
                 
+                // Fetch current players with a delay between requests
                 const uint dota2AppId = 570;
                 var userStats = await _steamUserStats.GetNumberOfCurrentPlayers(dota2AppId);
             
@@ -59,7 +61,7 @@ public class SteamService : IHostedService
             }
         }
         
-        _logger.LogWarning("Stop fetching user stats");
+        _logger.LogWarning("Stopped fetching user stats");
     }
     
     // IHosted Service
