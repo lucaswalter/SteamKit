@@ -33,6 +33,34 @@ public class SteamService : IHostedService
         _manager.Subscribe<SteamUserStats.NumberOfPlayersCallback>(OnUserStatsFetched);
     }
 
+    /*
+     * IHosted Service
+     *
+     * This is the main execution loop for the SteamService which gets
+     * called on app startup by asp.net. It will connect to the steam network
+     * and continue to execute callbacks until the app is shutdown.
+     */
+    public Task StartAsync(CancellationToken cancellationToken)
+    {
+        _client.Connect();
+        
+        // Main Execution Loop
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Executing Steam Callbacks...");
+            _manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("SteamService stopped");
+        return Task.CompletedTask;
+    }
+    
+    // User Stats Fetching
     void OnUserStatsFetched(SteamUserStats.NumberOfPlayersCallback callback)
     {
         _logger.LogInformation("Steam user stats fetched: {Players}", callback.NumPlayers);   
@@ -62,33 +90,6 @@ public class SteamService : IHostedService
         }
         
         _logger.LogWarning("Stopped fetching user stats");
-    }
-    
-    /*
-     * IHosted Service
-     *
-     * This is the main execution loop for the SteamService which gets
-     * called on app startup by asp.net. It will connect to the steam network
-     * and continue to execute callbacks until the app is shutdown.
-     */
-    public Task StartAsync(CancellationToken cancellationToken)
-    {
-        _client.Connect();
-        
-        // Main Execution Loop
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            _logger.LogInformation("Executing Steam Callbacks...");
-            _manager.RunWaitCallbacks(TimeSpan.FromSeconds(1));
-        }
-
-        return Task.CompletedTask;
-    }
-
-    public Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("SteamService stopped");
-        return Task.CompletedTask;
     }
     
     // Connection Handlers
