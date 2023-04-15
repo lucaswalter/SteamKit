@@ -64,7 +64,13 @@ public class SteamService : IHostedService
         _logger.LogWarning("Stopped fetching user stats");
     }
     
-    // IHosted Service
+    /*
+     * IHosted Service
+     *
+     * This is the main execution loop for the SteamService which gets
+     * called on app startup by asp.net. It will connect to the steam network
+     * and continue to execute callbacks until the app is shutdown.
+     */
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _client.Connect();
